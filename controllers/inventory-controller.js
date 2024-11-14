@@ -4,7 +4,9 @@ const knex = initKnex(configuration);
 
 const listAll = async (_req, res) => {
     try {
-        const allData = await knex("inventories");
+        const allData = await knex('inventories')
+            .join('warehouses', 'inventories.warehouse_id', '=', 'warehouses.id')
+            .select('inventories.*', 'warehouses.warehouse_name');
         const inventoryData = allData.map((inventory) => ({
             id: inventory.id,
             warehouse_name: inventory.warehouse_name,
@@ -19,7 +21,7 @@ const listAll = async (_req, res) => {
     } catch (err) {
         res
             .status(500)
-            .send(`Server error retrieving inventorys`);
+            .send(`Server error retrieving inventories`);
         console.error("Error getting list of all inventorys:", err);
     }
 };
