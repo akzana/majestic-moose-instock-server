@@ -1,7 +1,10 @@
 import express from "express";
-const router = express.Router();
-import { addWarehouse } from "../controllers/warehouse-controller.js";
+import * as warehouseController from "../controllers/warehouse-controller.js";
 
-router.route("/").post(addWarehouse);
+const router = express.Router();
+
+router.route("/warehouses")
+    .get(warehouseController.listAll)
+    .post(warehouseController.addWarehouse);
 
 export default router;
