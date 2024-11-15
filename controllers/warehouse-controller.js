@@ -141,4 +141,27 @@ const addWarehouse = async (req, res) => {
     }
 };
 
-export { listAll, listOne, addWarehouse };
+
+//delete funcction
+
+const deleteWarehouse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const warehouse = await knex("warehouses").where({ id }).first();
+
+    if (!warehouse) {
+      return res.status(404).json({ message: "Warehouse not found" });
+    }
+  
+    await knex("inventories").where({ warehouse_id: id }).del();
+    await knex("warehouses").where({ id }).del();
+
+    res.status(204).send();
+    
+  } catch (error) {
+    console.error("Error deleting warehouse and inventory items:", error);
+    res.status(500).json({ error: "Error deleting warehouse and inventory items" });
+  }
+};
+
+export { listAll, listOne, addWarehouse, deleteWarehouse };
