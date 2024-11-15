@@ -6,4 +6,8 @@ router
     .route("/inventories")
     .get(inventoryController.listAll);
 
+router
+    .route("/inventories/:id")
+    .get(inventoryController.listOne);
+
 export default router;
