@@ -128,6 +128,7 @@ const deleteWarehouse = async (req, res) => {
     await knex("warehouses").where({ id }).del();
 
     res.status(204).send();
+    
   } catch (error) {
     console.error("Error deleting warehouse and inventory items:", error);
     res.status(500).json({ error: "Error deleting warehouse and inventory items" });
