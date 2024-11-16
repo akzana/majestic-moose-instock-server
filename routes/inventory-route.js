@@ -8,6 +8,7 @@ router
 
 router
     .route("/inventories/:id")
-    .get(inventoryController.listOne);
+    .get(inventoryController.listOne)
+    .put(inventoryController.update);
 
 export default router;
