@@ -11,6 +11,7 @@ router
 router
   .route("/warehouses/:id")
   .get(warehouseController.listOne)
+  .put(warehouseController.updateWarehouse)
   .delete(warehouseController.deleteWarehouse);
 
 export default router;
