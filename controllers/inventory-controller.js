@@ -55,4 +55,25 @@ const listOne = async (req, res) => {
     }
 };
 
-export { listAll, listOne };
+//delete function
+
+const deleteInventory = async (req, res) => {
+    try {
+      const id = req.params.id;
+      const deletedRows = await knex("inventories").where({ id }).del();
+  
+      if (deletedRows) {
+        res.status(204).send(); 
+      } else {
+        res.status(404).json({ message: `Item with ID ${id} not found` });
+      }
+    } catch (err) {
+      res.status(500).send("Server error deleting inventory item");
+      console.error("Error deleting inventory item:", err);
+    }
+  };
+  
+  
+  
+
+  export { listAll, listOne, deleteInventory };
