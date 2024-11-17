@@ -6,7 +6,7 @@ const listAll = async (_req, res) => {
   try {
     const allData = await knex("inventories")
       .join("warehouses", "inventories.warehouse_id", "=", "warehouses.id")
-      .select("inventories.*", "warehouses.warehouse_name", "warehouses.id");
+      .select("inventories.*", "warehouses.warehouse_name");
     const inventoryData = allData.map((inventory) => ({
       id: inventory.id,
       warehouse_name: inventory.warehouse_name,
