@@ -55,25 +55,76 @@ const listOne = async (req, res) => {
     }
 };
 
-//delete function
 
-const deleteInventory = async (req, res) => {
+/*
+ * Update an existing iventory item
+ */
+const update = async (req, res) => {
     try {
-      const id = req.params.id;
-      const deletedRows = await knex("inventories").where({ id }).del();
-  
-      if (deletedRows) {
-        res.status(204).send(); 
-      } else {
-        res.status(404).json({ message: `Item with ID ${id} not found` });
-      }
-    } catch (err) {
-      res.status(500).send("Server error deleting inventory item");
-      console.error("Error deleting inventory item:", err);
-    }
-  };
-  
-  
-  
+        const { warehouse_id, 
+            item_name, 
+            description, 
+            category, 
+            status, 
+            quantity } = req.body;
 
-  export { listAll, listOne, deleteInventory };
+        // If there is a missing property in the request body
+        if (!warehouse_id || 
+            !item_name || 
+            !description || 
+            !category || 
+            !status || 
+            quantity === undefined) {
+            return res.status(400).json({
+                message: "Missing properties.",
+            });
+        }
+
+        // If the quantity is not a number
+        if (typeof quantity !== "number") {
+            return res.status(400).json({
+                message: "Quantity should be a number.",
+            });
+        }
+
+        // If the warehouse_id value does not exist 
+        const warehouseIdExists = await knex("warehouses")
+            .where({ id: warehouse_id }).first();
+        if (!warehouseIdExists) {
+            return res.status(400).json({
+                message: "Warehouse id does not exist.",
+            });
+        }
+
+        const rowsUpdated = await knex("inventories")
+            .where({ id: req.params.id })
+            .update({
+                warehouse_id,
+                item_name,
+                description,
+                category,
+                status,
+                quantity});
+
+        if (rowsUpdated === 0) {
+            return res.status(404).json({
+                message: "Inventory ID not found.",
+            });
+        }
+
+        const updatedInventory = await knex("inventories")
+            .where({ id: req.params.id }).first();
+
+
+        res.status(200).json(updatedInventory);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Unable to update inventory.",
+        });
+    }
+};
+
+
+export { listAll, listOne, update};
