@@ -4,7 +4,8 @@ const router = express.Router();
 
 router
     .route("/inventories")
-    .get(inventoryController.listAll);
+    .get(inventoryController.listAll)
+    .post(inventoryController.addItem);
 
 router
     .route("/inventories/:id")
