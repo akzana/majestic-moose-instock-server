@@ -125,49 +125,78 @@ const update = async (req, res) => {
 };
 
 const addItem = async (req, res) => {
-  const { warehouse_id, item_name, description, category, status, quantity } =
-    req.body;
-
-  if (
-    !warehouse_id ||
-    !item_name ||
-    !description ||
-    !category ||
-    !status ||
-    quantity === undefined
-  ) {
-    return res.status(400).json({
-      message: `Please provide all required fields for the inventory item ${req.body}`,
-    });
-  }
-
-  if (typeof quantity !== "number" || isNaN(quantity)) {
-    return res.status(400).json({
-      message: "Please ensure quantity is a valid number",
-    });
-  }
-
-  try {
-    const warehouseIdExists = await knex("warehouses")
-      .where("id", warehouse_id)
-      .first();
-    if (!warehouseIdExists) {
-      res.status(400).json({
-        message: `Sorry, the warehouse ID ${warehouse_id} does not exist. Please verify the warehouse is added and try again.`,
+    const { warehouse_id, item_name, description, category, status, quantity } =
+      req.body;
+  
+    if (
+      !warehouse_id ||
+      !item_name ||
+      !description ||
+      !category ||
+      !status ||
+      quantity === undefined
+    ) {
+      return res.status(400).json({
+        message: `Please provide all required fields for the inventory item ${req.body}`,
       });
     }
+  
+    if (typeof quantity !== "number" || isNaN(quantity)) {
+      return res.status(400).json({
+        message: "Please ensure quantity is a valid number",
+      });
+    }
+  
+    try {
+      const warehouseIdExists = await knex("warehouses")
+        .where("id", warehouse_id)
+        .first();
+      if (!warehouseIdExists) {
+        res.status(400).json({
+          message: `Sorry, the warehouse ID ${warehouse_id} does not exist. Please verify the warehouse is added and try again.`,
+        });
+      }
+  
+      const result = await knex("inventories").insert(req.body);
+      const itemId = result[0];
+  
+      const createdItem = await knex("inventories").where({
+        id: itemId,
+      });
+      res.status(201).json(createdItem[0]);
+    } catch (error) {
+      res.status(500).json({
+        message: `Unable to create new inventory item: ${error}`,
+      });
+    }
+  };
 
-    const result = await knex("inventories").insert(req.body);
-    const itemId = result[0];
+  const deleteInventory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(req.params.id); 
+        const itemExists = await knex("inventories")
+            .where({ id })
+            .first();
 
-    const createdItem = await knex("inventories").where({
-      id: itemId,
-    });
-    res.status(201).json(createdItem[0]);
-  } catch (error) {
-    res.status(500).json({
-      message: `Unable to create new inventory item: ${error}`,
-    });
-  }
+        if (!itemExists) {
+            return res.status(404).json({
+                message: `Item with ID ${id} not found.`,
+            });
+        }
+
+        // Delete the inventory item
+        await knex("inventories")
+            .where({ id })
+            .del();
+
+        res.status(204).send(); 
+    } catch (err) {
+        console.error("Error deleting inventory item:", err);
+        res.status(500).json({
+            message: "Server error deleting inventory item.",
+        });
+    }
 };
-export { listAll, listOne, update, addItem };
+
+export { listAll, listOne, update, addItem, deleteInventory};
